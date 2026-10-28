@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: doccie-agent
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: USE_MOCK_LLM
+        value: "true"
+      - key: GENERATED_DIR
+        value: "generated"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: LOG_LEVEL
+        value: "INFO"

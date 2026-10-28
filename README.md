@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/Ollama-Local%20LLM-black?style=for-the-badge&logo=ollama&logoColor=white" alt="Ollama" />
   <img src="https://img.shields.io/badge/DOCX-python--docx-2B579A?style=for-the-badge&logo=microsoftword&logoColor=white" alt="python-docx" />
   <img src="https://img.shields.io/badge/pytest-9%20Passed-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest" />
+  <img src="https://img.shields.io/badge/Deploy%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render" />
 </p>
 
 An autonomous AI agent in Python that accepts a natural-language user request, dynamically creates a TODO/task execution plan, executes the tasks through modular internal tools, performs a reflection quality self-check, and generates a polished Microsoft Word (`.docx`) document as the final artifact.
@@ -58,7 +59,9 @@ E:\TODO App\
 ├── .env                         # Active environment configuration
 ├── .env.example                 # Template environment configuration
 ├── .gitignore                   # Git ignore rules (venv, .env, docx files)
+├── .python-version              # Python version for cloud deployment (3.11.9)
 ├── README.md                    # Project documentation, architecture & guide
+├── render.yaml                  # Render Blueprint deployment specification
 ├── requirements.txt             # Python dependencies
 └── run.py                       # CLI entrypoint with terminal status banner
 ```
@@ -223,7 +226,34 @@ The terminal prints the status banner:
 
 ---
 
-## 7. API Reference
+## 7. Deploying to Render (Cloud Hosting)
+
+This repository includes full configuration for 1-click deployment on [Render](https://render.com).
+
+### Method A: Blueprint Deployment (Fastest & Recommended)
+1. Go to your **[Render Dashboard](https://dashboard.render.com/)**.
+2. Click **New +** $\rightarrow$ **Blueprint**.
+3. Connect your GitHub repository: `https://github.com/madhanmohanreddyperam06/Doccie`.
+4. Render will automatically read [`render.yaml`](file:///e:/TODO%20App/render.yaml) and configure the build, start command, health check (`/health`), and environment variables.
+5. Click **Apply**. Your service will build and be live with a free HTTPS URL (e.g. `https://doccie-agent.onrender.com/docs`).
+
+### Method B: Manual Web Service Setup
+If creating manually without a Blueprint:
+- **Environment**: `Python`
+- **Region**: `Oregon` (or closest to you)
+- **Branch**: `main`
+- **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Health Check Path**: `/health`
+- **Environment Variables**:
+  - `USE_MOCK_LLM`: `true`
+  - `PYTHON_VERSION`: `3.11.9`
+  - `GENERATED_DIR`: `generated`
+  - `LOG_LEVEL`: `INFO`
+
+---
+
+## 8. API Reference
 
 ### `POST /agent`
 Accepts a natural-language request and autonomously executes the workflow.
@@ -323,7 +353,7 @@ Returns `204 No Content` to keep terminal logs clean from automatic browser tab 
 
 ---
 
-## 8. Verification & Test Cases
+## 9. Verification & Test Cases
 
 ### Test Case 1: Standard Project Proposal
 ```json
@@ -343,7 +373,7 @@ Returns `204 No Content` to keep terminal logs clean from automatic browser tab 
 
 ---
 
-## 9. Automated Testing
+## 10. Automated Testing
 
 Run the automated test suite with pytest:
 
@@ -364,7 +394,7 @@ python -m pytest -v
 
 ---
 
-## 10. Engineering Improvement & Architectural Tradeoffs
+## 11. Engineering Improvement & Architectural Tradeoffs
 
 ### Mandatory Engineering Improvement: Reflection & Self-Check Loop
 Single-pass generation frequently suffers from missed edge cases, brief text sections, or hallucinated requirements. To solve this, the agent incorporates a **Reflection and Self-Correction Agent**:
@@ -378,7 +408,7 @@ Single-pass generation frequently suffers from missed edge cases, brief text sec
 
 ---
 
-## 11. Debugging & Resilience Highlights
+## 12. Debugging & Resilience Highlights
 
 During development, several key real-world challenges were identified and engineered for:
 1. **Ollama Network Resilience**: ISP IPv6 routing timeouts can cause large model pulls to fail. We engineered an abstract `LLMProvider` interface with a drop-in `MockLLMProvider`, allowing the agent to function with zero latency and 100% test reliability offline.
@@ -387,7 +417,7 @@ During development, several key real-world challenges were identified and engine
 
 ---
 
-## 12. 8–10 Minute Video Demo Script
+## 13. 8–10 Minute Video Demo Script
 
 Follow this structured script when recording a presentation or video walkthrough:
 

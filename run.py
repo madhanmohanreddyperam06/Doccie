@@ -9,7 +9,9 @@ load_dotenv()
 if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
-    reload = os.getenv("RELOAD", "true").lower() in ("true", "1", "yes")
+    is_render = os.getenv("RENDER") is not None
+    reload_default = "false" if is_render else "true"
+    reload = os.getenv("RELOAD", reload_default).lower() in ("true", "1", "yes")
 
     print("=" * 70)
     print(f"🚀 Autonomous AI Document Agent Server Started")
