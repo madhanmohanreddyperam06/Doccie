@@ -14,11 +14,11 @@ if __name__ == "__main__":
     reload = os.getenv("RELOAD", reload_default).lower() in ("true", "1", "yes")
 
     print("=" * 70)
-    print(f"🚀 Autonomous AI Document Agent Server Started")
-    print(f"🏠 Root Endpoint:         http://127.0.0.1:{port}/")
-    print(f"📖 Swagger Documentation: http://127.0.0.1:{port}/docs")
-    print(f"💓 Health Check:          http://127.0.0.1:{port}/health")
-    print(f"🌐 Listening Interface:    http://{host}:{port}")
+    print(f"Autonomous AI Document Agent Server Started")
+    print(f"Root Endpoint:         http://127.0.0.1:{port}/")
+    print(f"Swagger Documentation: http://127.0.0.1:{port}/docs")
+    print(f"Health Check:          http://127.0.0.1:{port}/health")
+    print(f"Listening Interface:    http://{host}:{port}")
     print("=" * 70)
 
     uvicorn.run(
