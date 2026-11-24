@@ -1,4 +1,4 @@
-"""Entrypoint script to start the Autonomous AI Document Agent FastAPI server."""
+"""Entrypoint script to start the FastAPI server."""
 
 import os
 from dotenv import load_dotenv
@@ -14,11 +14,13 @@ if __name__ == "__main__":
     reload = os.getenv("RELOAD", reload_default).lower() in ("true", "1", "yes")
 
     print("=" * 70)
-    print(f"Autonomous AI Document Agent Server Started")
+    print("Autonomous AI Document & TODO Agent Server Started")
     print(f"Root Endpoint:         http://127.0.0.1:{port}/")
     print(f"Swagger Documentation: http://127.0.0.1:{port}/docs")
     print(f"Health Check:          http://127.0.0.1:{port}/health")
-    print(f"Listening Interface:    http://{host}:{port}")
+    print(f"Authentication:        http://127.0.0.1:{port}/auth/register | /auth/login")
+    print(f"TODOs API:             http://127.0.0.1:{port}/todos")
+    print(f"Listening Interface:   http://{host}:{port}")
     print("=" * 70)
 
     uvicorn.run(

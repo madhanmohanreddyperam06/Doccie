@@ -1,14 +1,17 @@
 # Autonomous AI Document Agent
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11%2B%20%7C%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic" />
-  <img src="https://img.shields.io/badge/Ollama-Local%20LLM-black?style=for-the-badge&logo=ollama&logoColor=white" alt="Ollama" />
-  <img src="https://img.shields.io/badge/DOCX-python--docx-2B579A?style=for-the-badge&logo=microsoftword&logoColor=white" alt="python-docx" />
-  <img src="https://img.shields.io/badge/pytest-9%20Passed-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest" />
-  <img src="https://img.shields.io/badge/Deploy%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render" />
-</p>
+<div align="center">
+
+![Python](https://img.shields.io/badge/Python-3.11%2B%20%7C%203.14-3776AB?style=flat-square&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=flat-square&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-4169E1?style=flat-square&logo=postgresql)
+![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square&logo=pydantic)
+![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-black?style=flat-square&logo=ollama)
+![DOCX](https://img.shields.io/badge/DOCX-python--docx-2B579A?style=flat-square&logo=microsoftword)
+![pytest](https://img.shields.io/badge/pytest-16%20Passed-0A9EDC?style=flat-square&logo=pytest)
+![Render](https://img.shields.io/badge/Render-Cloud%20Deploy-46E3B7?style=flat-square&logo=render)
+
+</div>
 
 An autonomous AI agent in Python that accepts a natural-language user request, dynamically creates a TODO/task execution plan, executes the tasks through modular internal tools, performs a reflection quality self-check, and generates a polished Microsoft Word (`.docx`) document as the final artifact.
 
@@ -226,30 +229,42 @@ The terminal prints the status banner:
 
 ---
 
-## 7. Deploying to Render (Cloud Hosting)
+## 7. Deploying to Render with Cloud PostgreSQL
 
-This repository includes full configuration for 1-click deployment on [Render](https://render.com).
+This repository includes full Infrastructure-as-Code blueprint configuration for 1-click deployment on [Render](https://render.com), deploying both the **FastAPI Web Service** and a **Managed Cloud PostgreSQL Database**.
 
-### Method A: Blueprint Deployment (Fastest & Recommended)
-1. Go to your **[Render Dashboard](https://dashboard.render.com/)**.
-2. Click **New +** $\rightarrow$ **Blueprint**.
-3. Connect your GitHub repository: `https://github.com/madhanmohanreddyperam06/Doccie`.
-4. Render will automatically read [`render.yaml`](file:///e:/TODO%20App/render.yaml) and configure the build, start command, health check (`/health`), and environment variables.
-5. Click **Apply**. Your service will build and be live with a free HTTPS URL (e.g. `https://doccie-agent.onrender.com/docs`).
+### Method A: Blueprint Deployment (Recommended)
+1. Push your code to your GitHub repository.
+2. Go to your **[Render Dashboard](https://dashboard.render.com/)**.
+3. Click **New +** $\rightarrow$ **Blueprint**.
+4. Connect your GitHub repository.
+5. Render reads [`render.yaml`](file:///e:/TODO%20App/render.yaml) and automatically provisions:
+   - **Managed Cloud PostgreSQL Database** (`todo-db`) on Render's free tier.
+   - **FastAPI Web Service** (`doccie-agent`) linked directly to the cloud database via internal connection string.
+   - **Auto-generated `SECRET_KEY`** for cryptographic JWT authentication.
+   - **Automatic table initialization**: on first start, the application initializes all database tables (`users`, `todos`, `documents`) without needing manual SQL migrations.
+6. Click **Apply**. Your application and Cloud PostgreSQL will be live with an HTTPS endpoint.
 
-### Method B: Manual Web Service Setup
-If creating manually without a Blueprint:
-- **Environment**: `Python`
-- **Region**: `Oregon` (or closest to you)
-- **Branch**: `main`
-- **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
-- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- **Health Check Path**: `/health`
-- **Environment Variables**:
-  - `USE_MOCK_LLM`: `true`
-  - `PYTHON_VERSION`: `3.11.9`
-  - `GENERATED_DIR`: `generated`
-  - `LOG_LEVEL`: `INFO`
+### Method B: Manual Setup on Render
+If you prefer creating services manually in the Render dashboard:
+1. **Create PostgreSQL Database**:
+   - In Render, click **New +** $\rightarrow$ **PostgreSQL**.
+   - Set Name to `todo-db`, Database to `todo_db`.
+   - Copy the **Internal Database URL** (e.g., `postgresql://todo_user:xxxx@dpg-xxxxxx-a/todo_db`).
+2. **Create Web Service**:
+   - Click **New +** $\rightarrow$ **Web Service** and connect your repository.
+   - **Runtime**: `Python`
+   - **Build Command**: `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check Path**: `/health`
+   - **Environment Variables**:
+     - `DATABASE_URL`: *(paste the Render Internal Database URL from Step 1)*
+     - `SECRET_KEY`: *(generate a random string or let Render generate it)*
+     - `DB_FALLBACK_TO_SQLITE`: `false`
+     - `USE_MOCK_LLM`: `true`
+     - `PYTHON_VERSION`: `3.11.9`
+     - `GENERATED_DIR`: `generated`
+     - `LOG_LEVEL`: `INFO`
 
 ---
 
@@ -381,8 +396,8 @@ Run the automated test suite with pytest:
 python -m pytest -v
 ```
 
-### Test Coverage (9 Test Cases):
-1. `test_read_root`: Verifies root metadata endpoint returns HTTP 200.
+### Test Coverage (16 Test Cases):
+1. `test_read_root`: Verifies root metadata endpoint returns HTTP 200 and discovered routes.
 2. `test_health_check`: Verifies health endpoint returns HTTP 200 and healthy status.
 3. `test_agent_validation_empty_request`: Verifies HTTP 422 Unprocessable Entity on empty body.
 4. `test_agent_validation_short_request`: Verifies HTTP 422 when request is under 10 characters.
@@ -391,6 +406,13 @@ python -m pytest -v
 7. `test_download_document_success`: Verifies download endpoint returns valid application/vnd.openxmlformats-officedocument.wordprocessingml.document stream.
 8. `test_download_document_not_found`: Verifies HTTP 404 for non-existent document filename.
 9. `test_download_document_path_traversal_prevention`: Verifies HTTP 400 rejection on `../../` path traversal attempts.
+10. `test_register_new_user`: Verifies user registration with hashed password.
+11. `test_register_duplicate_email_fails`: Verifies duplicate email rejection.
+12. `test_login_success_and_invalid_password`: Tests JSON authentication and password verification.
+13. `test_oauth2_form_login`: Tests OAuth2 password request form for Swagger UI integration.
+14. `test_get_current_user_profile`: Validates JWT Bearer authorization and user profile fetching.
+15. `test_get_profile_unauthorized`: Validates HTTP 401 on missing or invalid JWT.
+16. `test_todos_crud_lifecycle`: Tests end-to-end create, list, get, update, and delete for TODOs.
 
 ---
 
